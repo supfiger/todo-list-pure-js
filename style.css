@@ -1,0 +1,89 @@
+/* setting */
+body {
+  margin: 0;
+  font-family: Roboto;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+/* styles */
+.app {
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 1200px;
+  padding-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.screenOne {
+  display: flex;
+  margin-bottom: 150px;
+}
+
+.screenTwo {
+  display: none;
+  flex-direction: column;
+}
+
+.list {
+  list-style-type: none;
+  margin-right: 100px;
+}
+
+.listItem {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.listItem:last-child {
+  margin-bottom: 0;
+}
+
+.listItem img {
+  width: 60px;
+  height: 60px;
+  margin-right: 10px;
+}
+
+.listItem p {
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.btnWrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btnWrap button {
+  padding: 8px 30px;
+  text-transform: uppercase;
+}
+
+.isHidden {
+  display: none;
+}
+
+.isVisible {
+  display: flex;
+}
+
+.isFocus {
+  border: 2px solid red;
+}
+
+.inputText {
+  padding: 10px;
+  margin-bottom: 20px;
+  width: 250px;
+}

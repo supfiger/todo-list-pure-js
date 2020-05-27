@@ -59,8 +59,7 @@ const showList = (currentData) => {
   });
 
   // add focus to the first element in the list
-  const getFirstListItem = new GetElement(".listItem").selector;
-  setFocusToElement(getFirstListItem);
+  setFocusToFirstElement();
 };
 
 const clearList = () => {
@@ -76,45 +75,47 @@ const toggleScreens = () => {
   getScreenTwo.classList.toggle("isVisible");
 };
 
-const setFocusToElement = (element) => {
+const setFocus = (element) => {
   return element.focus();
 };
 
+const setFocusToFirstElement = () => {
+  const getFirstListItem = new GetElement(".listItem").selector;
+  setFocus(getFirstListItem);
+};
+
 const navigationScreenOne = (e) => {
-  let indexListItem = 0;
   let isFocusOnList = true;
   const getListItems = new GetElement(".list > li").selectorAll;
-  const itemInFocus = getListItems[indexListItem];
+  const itemInFocus = getListItems[indexListItem + 1];
   const newData = { ...data };
-  const focused = document.activeElement;
+  const tabindex = document.activeElement.getAttribute("tabindex");
 
   switch (e.keyCode) {
     case 37:
-      console.log("focused", focused);
       isFocusOnList = true;
-      if (focused.tabindex !== 0) {
+      console.log("tabindex", tabindex);
+      if (isFocusOnList && tabindex !== 0) {
         newData.accounts.splice(indexListItem, 1);
         clearList();
         showList(newData);
-        setFocusToElement(itemInFocus);
       }
-
+      setFocus(itemInFocus);
       break;
     case 38:
-      console.log("focused", focused);
+      indexListItem -= 1;
+      setFocus(itemInFocus);
+      console.log("indexListItem", indexListItem);
       break;
     case 39:
-      console.log("focused", focused);
       isFocusOnList = false;
       getCreateButton.setAttribute("tabindex", 0);
-      setFocusToElement(getCreateButton);
+      setFocus(getCreateButton);
       break;
     case 40:
       indexListItem += 1;
+      setFocus(itemInFocus);
       console.log("indexListItem", indexListItem);
-      setFocusToElement(itemInFocus);
-
-      console.log("focused", focused);
       break;
 
     default:
@@ -129,10 +130,11 @@ const onCreateAccount = (e) => {
   if (e.keyCode === 13) {
     toggleScreens();
   }
+
+  setFocus(getInput);
 };
 
 const onAddAccount = (e) => {
-  const getInput = new GetElement(".inputText").selector;
   const inputValue = getInput.value;
   const newData = { ...data };
 
@@ -145,11 +147,14 @@ const onAddAccount = (e) => {
     clearList();
     showList(newData);
     toggleScreens();
+    getInput.value = "";
+    setFocusToFirstElement();
   }
 };
 
 const onCancelAccount = (e) => {
   toggleScreens();
+  setFocusToFirstElement();
 };
 
 const onPageLoad = () => {
@@ -157,6 +162,8 @@ const onPageLoad = () => {
 };
 
 //  global variables
+let indexListItem = 0;
+const getInput = new GetElement(".inputText").selector;
 const getScreenOne = new GetElement(".screenOne").selector;
 const getScreenTwo = new GetElement(".screenTwo").selector;
 const getCreateButton = new GetElement("#createButton").selector;

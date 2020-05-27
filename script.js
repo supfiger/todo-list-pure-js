@@ -42,7 +42,6 @@ const showList = (currentData) => {
   const { accounts } = currentData;
 
   accounts.map((item, index) => {
-    console.log("index", index);
     const getList = new GetElement(".list").selector;
     const listItem = new CreateElement("li");
     const img = new CreateElement("img");
@@ -85,35 +84,36 @@ const setFocusToFirstElement = () => {
 };
 
 const navigationScreenOne = (e) => {
-  let isFocusOnList = true;
   const getListItems = new GetElement(".list > li").selectorAll;
-  const itemInFocus = getListItems[indexListItem + 1];
+  const itemInFocus = getListItems[indexListItem];
   const newData = { ...data };
   const tabindex = document.activeElement.getAttribute("tabindex");
 
   switch (e.keyCode) {
     case 37:
-      isFocusOnList = true;
-      console.log("tabindex", tabindex);
-      if (isFocusOnList && tabindex !== 0) {
+      if (tabindex !== 0) {
         newData.accounts.splice(indexListItem, 1);
         clearList();
         showList(newData);
       }
       setFocus(itemInFocus);
+      console.log("tabindex", tabindex);
       break;
     case 38:
-      indexListItem -= 1;
+      indexListItem--;
+      console.log("up itemInFocus", itemInFocus.getAttribute("tabindex"));
+      console.log("tabindex", tabindex);
       setFocus(itemInFocus);
       console.log("indexListItem", indexListItem);
       break;
     case 39:
-      isFocusOnList = false;
-      getCreateButton.setAttribute("tabindex", 0);
       setFocus(getCreateButton);
+      console.log("tabindex", tabindex);
       break;
     case 40:
-      indexListItem += 1;
+      indexListItem++;
+      console.log("down itemInFocus", itemInFocus.getAttribute("tabindex"));
+      console.log("tabindex", tabindex);
       setFocus(itemInFocus);
       console.log("indexListItem", indexListItem);
       break;
@@ -123,15 +123,37 @@ const navigationScreenOne = (e) => {
   }
 };
 
-const navigationScreenTwo = (e) => {};
+const navigationScreenTwo = (e) => {
+  const isInputFocused = document.activeElement === getInput;
+  switch (e.keyCode) {
+    case 37:
+      if (isInputFocused) {
+        setFocus(getAddButton);
+      }
+      break;
+    case 38:
+      setFocus(getInput);
+      break;
+    case 39:
+      if (isInputFocused) {
+        setFocus(getCancelButton);
+      }
+      break;
+    case 40:
+      setFocus(getAddButton);
+      break;
+
+    default:
+      break;
+  }
+};
 
 // buttons functions
 const onCreateAccount = (e) => {
   if (e.keyCode === 13) {
     toggleScreens();
+    setFocus(getInput);
   }
-
-  setFocus(getInput);
 };
 
 const onAddAccount = (e) => {
@@ -143,7 +165,11 @@ const onAddAccount = (e) => {
     img: imgUrl,
   });
 
-  if (e.keyCode === 13) {
+  if (inputValue === "") {
+    setFocus(getInput);
+  }
+
+  if (inputValue !== "" && e.keyCode === 13) {
     clearList();
     showList(newData);
     toggleScreens();
@@ -154,6 +180,7 @@ const onAddAccount = (e) => {
 
 const onCancelAccount = (e) => {
   toggleScreens();
+  getInput.value = "";
   setFocusToFirstElement();
 };
 

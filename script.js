@@ -1,55 +1,73 @@
-window.addEventListener("load", () => {
-  showList(data);
-});
-
+// main variables
 const imgUrl =
   "https://images.pexels.com/photos/4344464/pexels-photo-4344464.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260";
 
 const data = {
   accounts: [
     {
-      title: "some text 1",
+      title: "hello world!",
       img: imgUrl,
     },
     {
-      title: "some text 2",
+      title: "javascript",
       img: imgUrl,
     },
     {
-      title: "some text 3",
+      title: "user",
       img: imgUrl,
     },
   ],
 };
 
-const getList = document.querySelector(".list");
-const getScreenOne = document.querySelector(".screenOne");
-const getScreenTwo = document.querySelector(".screenTwo");
-const getCreateButton = document.querySelector("#createButton");
-const getInput = document.querySelector(".inputText");
-const getAddButton = document.querySelector("#addButton");
-const getCancelButton = document.querySelector("#cancelButton");
+// constructors
+function GetElement(element) {
+  this.selector = document.querySelector(element);
+  this.selectorAll = document.querySelectorAll(element);
+}
 
+function CreateElement(element) {
+  return (this.element = document.createElement(element));
+}
+
+function AppendElement(parent, children) {
+  return parent.append(children);
+}
+
+function RemoveElement(element) {
+  return element.remove();
+}
+
+// work with List
 const showList = (currentData) => {
-  currentData.accounts.map((item) => {
-    const listItem = document.createElement("li");
-    const img = document.createElement("img");
-    const title = document.createElement("p");
+  const { accounts } = currentData;
 
-    listItem.className = "listItem";
+  accounts.map((item, index) => {
+    console.log("index", index);
+    const getList = new GetElement(".list").selector;
+    const listItem = new CreateElement("li");
+    const img = new CreateElement("img");
+    const title = new CreateElement("p");
+
+    listItem.classList.add("listItem");
+    listItem.setAttribute("tabindex", index + 1);
     img.setAttribute("src", item.img);
     title.innerHTML = item.title;
 
-    listItem.append(img);
-    listItem.append(title);
-    getList.append(listItem);
+    new AppendElement(listItem, img);
+    new AppendElement(listItem, title);
+    new AppendElement(getList, listItem);
   });
+
+  // add focus to the first element in the list
+  const getFirstListItem = new GetElement(".listItem").selector;
+  setFocusToElement(getFirstListItem);
 };
 
 const clearList = () => {
-  const getListItems = document.querySelectorAll(".list > li");
+  const getListItems = new GetElement(".list > li").selectorAll;
+
   for (const item of getListItems) {
-    item.remove();
+    new RemoveElement(item);
   }
 };
 
@@ -58,24 +76,97 @@ const toggleScreens = () => {
   getScreenTwo.classList.toggle("isVisible");
 };
 
-getCreateButton.addEventListener("click", (e) => {
-  toggleScreens();
-});
+const setFocusToElement = (element) => {
+  return element.focus();
+};
 
-getAddButton.addEventListener("click", (e) => {
+const navigationScreenOne = (e) => {
+  let indexListItem = 0;
+  let isFocusOnList = true;
+  const getListItems = new GetElement(".list > li").selectorAll;
+  const itemInFocus = getListItems[indexListItem];
+  const newData = { ...data };
+  const focused = document.activeElement;
+
+  switch (e.keyCode) {
+    case 37:
+      console.log("focused", focused);
+      isFocusOnList = true;
+      if (focused.tabindex !== 0) {
+        newData.accounts.splice(indexListItem, 1);
+        clearList();
+        showList(newData);
+        setFocusToElement(itemInFocus);
+      }
+
+      break;
+    case 38:
+      console.log("focused", focused);
+      break;
+    case 39:
+      console.log("focused", focused);
+      isFocusOnList = false;
+      getCreateButton.setAttribute("tabindex", 0);
+      setFocusToElement(getCreateButton);
+      break;
+    case 40:
+      indexListItem += 1;
+      console.log("indexListItem", indexListItem);
+      setFocusToElement(itemInFocus);
+
+      console.log("focused", focused);
+      break;
+
+    default:
+      break;
+  }
+};
+
+const navigationScreenTwo = (e) => {};
+
+// buttons functions
+const onCreateAccount = (e) => {
+  if (e.keyCode === 13) {
+    toggleScreens();
+  }
+};
+
+const onAddAccount = (e) => {
+  const getInput = new GetElement(".inputText").selector;
   const inputValue = getInput.value;
-  let newData = { ...data };
+  const newData = { ...data };
 
   newData.accounts.push({
     title: inputValue,
     img: imgUrl,
   });
 
-  clearList();
-  showList(newData);
-  toggleScreens();
-});
+  if (e.keyCode === 13) {
+    clearList();
+    showList(newData);
+    toggleScreens();
+  }
+};
 
-getCancelButton.addEventListener("click", (e) => {
+const onCancelAccount = (e) => {
   toggleScreens();
-});
+};
+
+const onPageLoad = () => {
+  showList(data);
+};
+
+//  global variables
+const getScreenOne = new GetElement(".screenOne").selector;
+const getScreenTwo = new GetElement(".screenTwo").selector;
+const getCreateButton = new GetElement("#createButton").selector;
+const getAddButton = new GetElement("#addButton").selector;
+const getCancelButton = new GetElement("#cancelButton").selector;
+
+// add listeners
+getCreateButton.addEventListener("keydown", onCreateAccount);
+getAddButton.addEventListener("keydown", onAddAccount);
+getCancelButton.addEventListener("keydown", onCancelAccount);
+getScreenOne.addEventListener("keydown", navigationScreenOne);
+getScreenTwo.addEventListener("keydown", navigationScreenTwo);
+window.addEventListener("load", onPageLoad);

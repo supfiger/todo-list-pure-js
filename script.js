@@ -1,43 +1,19 @@
-// main variables
-const imgUrl =
-  "https://images.pexels.com/photos/4344464/pexels-photo-4344464.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260";
-
-const data = {
-  accounts: [
-    {
-      title: "hello world!",
-      img: imgUrl,
-    },
-    {
-      title: "javascript",
-      img: imgUrl,
-    },
-    {
-      title: "user",
-      img: imgUrl,
-    },
-  ],
-};
-
-// constructors
+// constructors for work with DOM
 function GetElement(element) {
   this.selector = document.querySelector(element);
   this.selectorAll = document.querySelectorAll(element);
 }
-
 function CreateElement(element) {
   return (this.element = document.createElement(element));
 }
-
 function AppendElement(parent, children) {
   return parent.append(children);
 }
-
 function RemoveElement(element) {
   return element.remove();
 }
 
-// work with List
+// work with List of accounts
 const showList = (currentData) => {
   const { accounts } = currentData;
 
@@ -48,7 +24,7 @@ const showList = (currentData) => {
     const title = new CreateElement("p");
 
     listItem.classList.add("listItem");
-    listItem.setAttribute("tabindex", index + 1);
+    listItem.setAttribute("tabindex", index);
     img.setAttribute("src", item.img);
     title.innerHTML = item.title;
 
@@ -60,7 +36,10 @@ const showList = (currentData) => {
   // add focus to the first element in the list
   setFocusToFirstElement();
 };
-
+const updateList = (newData) => {
+  clearList();
+  showList(newData);
+};
 const clearList = () => {
   const getListItems = new GetElement(".list > li").selectorAll;
 
@@ -69,60 +48,72 @@ const clearList = () => {
   }
 };
 
-const toggleScreens = () => {
-  getScreenOne.classList.toggle("isHidden");
-  getScreenTwo.classList.toggle("isVisible");
-};
-
+// set focus to DOM element
 const setFocus = (element) => {
   return element.focus();
 };
-
 const setFocusToFirstElement = () => {
   const getFirstListItem = new GetElement(".listItem").selector;
   setFocus(getFirstListItem);
 };
 
+// work with screens
 const navigationScreenOne = (e) => {
-  const getListItems = new GetElement(".list > li").selectorAll;
-  const itemInFocus = getListItems[indexListItem];
+  const getList = new GetElement(".list").selector;
   const newData = { ...data };
-  const tabindex = document.activeElement.getAttribute("tabindex");
+  const focusedItem = document.activeElement;
+  const lengthList = getList.children.length;
+  const isFocusOnButton =
+    e.key === "ArrowLeft" && focusedItem.getAttribute("id") === "createButton";
+  console.log("lengthList", lengthList);
 
-  switch (e.keyCode) {
-    case 37:
-      if (tabindex !== 0) {
-        newData.accounts.splice(indexListItem, 1);
-        clearList();
-        showList(newData);
-      }
-      setFocus(itemInFocus);
-      console.log("tabindex", tabindex);
+  const onArrowLeft = () => {
+    switch (isFocusOnButton) {
+      case true:
+        setFocus(getList.children[positionListItem]);
+        break;
+      case false:
+        newData.accounts.splice(positionListItem, 1);
+        updateList(newData);
+        positionListItem = 0;
+
+        if (lengthList === 2) {
+          setFocus(getCreateButton);
+        }
+      default:
+        break;
+    }
+  };
+  const onArrowUp = () => {
+    if (positionListItem > 0) {
+      positionListItem -= 1;
+      setFocus(getList.children[positionListItem]);
+    }
+  };
+  const onArrowDown = () => {
+    if (positionListItem < lengthList - 1) {
+      positionListItem += 1;
+      setFocus(getList.children[positionListItem]);
+    }
+  };
+
+  switch (e.key) {
+    case "ArrowLeft":
+      onArrowLeft();
       break;
-    case 38:
-      indexListItem--;
-      console.log("up itemInFocus", itemInFocus.getAttribute("tabindex"));
-      console.log("tabindex", tabindex);
-      setFocus(itemInFocus);
-      console.log("indexListItem", indexListItem);
+    case "ArrowUp":
+      onArrowUp();
       break;
-    case 39:
+    case "ArrowRight":
       setFocus(getCreateButton);
-      console.log("tabindex", tabindex);
       break;
-    case 40:
-      indexListItem++;
-      console.log("down itemInFocus", itemInFocus.getAttribute("tabindex"));
-      console.log("tabindex", tabindex);
-      setFocus(itemInFocus);
-      console.log("indexListItem", indexListItem);
+    case "ArrowDown":
+      onArrowDown();
       break;
-
     default:
       break;
   }
 };
-
 const navigationScreenTwo = (e) => {
   const isInputFocused = document.activeElement === getInput;
   switch (e.keyCode) {
@@ -147,6 +138,10 @@ const navigationScreenTwo = (e) => {
       break;
   }
 };
+const toggleScreens = () => {
+  getScreenOne.classList.toggle("isHidden");
+  getScreenTwo.classList.toggle("isVisible");
+};
 
 // buttons functions
 const onCreateAccount = (e) => {
@@ -155,10 +150,10 @@ const onCreateAccount = (e) => {
     setFocus(getInput);
   }
 };
-
 const onAddAccount = (e) => {
   const inputValue = getInput.value;
   const newData = { ...data };
+  const conditions = inputValue !== "" && e.keyCode === 13;
 
   newData.accounts.push({
     title: inputValue,
@@ -169,27 +164,40 @@ const onAddAccount = (e) => {
     setFocus(getInput);
   }
 
-  if (inputValue !== "" && e.keyCode === 13) {
-    clearList();
-    showList(newData);
+  if (conditions) {
+    updateList(newData);
     toggleScreens();
     getInput.value = "";
-    setFocusToFirstElement();
   }
 };
-
 const onCancelAccount = (e) => {
   toggleScreens();
   getInput.value = "";
   setFocusToFirstElement();
 };
 
-const onPageLoad = () => {
-  showList(data);
+// basic variables
+const imgUrl =
+  "https://images.pexels.com/photos/4344464/pexels-photo-4344464.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260";
+const data = {
+  accounts: [
+    {
+      title: "1",
+      img: imgUrl,
+    },
+    {
+      title: "2",
+      img: imgUrl,
+    },
+    {
+      title: "3",
+      img: imgUrl,
+    },
+  ],
 };
 
 //  global variables
-let indexListItem = 0;
+let positionListItem = 0;
 const getInput = new GetElement(".inputText").selector;
 const getScreenOne = new GetElement(".screenOne").selector;
 const getScreenTwo = new GetElement(".screenTwo").selector;
@@ -203,4 +211,6 @@ getAddButton.addEventListener("keydown", onAddAccount);
 getCancelButton.addEventListener("keydown", onCancelAccount);
 getScreenOne.addEventListener("keydown", navigationScreenOne);
 getScreenTwo.addEventListener("keydown", navigationScreenTwo);
-window.addEventListener("load", onPageLoad);
+
+// show list of accounts
+showList(data);

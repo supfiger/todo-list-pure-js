@@ -27,7 +27,7 @@ const showList = (currentData) => {
     const title = new CreateElement("p");
 
     listItem.classList.add("listItem");
-    listItem.setAttribute("tabindex", index);
+    listItem.setAttribute("tabindex", index + 1);
     img.setAttribute("src", item.img);
     title.innerHTML = item.title;
 
@@ -226,6 +226,7 @@ getAddButton.addEventListener("keydown", onAddAccount);
 getCancelButton.addEventListener("keydown", onCancelAccount);
 getScreenOne.addEventListener("keydown", navigationScreenOne);
 getScreenTwo.addEventListener("keydown", navigationScreenTwo);
+document.addEventListener("mousedown", (e) => e.preventDefault());
 
 // show list of accounts
 showList(data);

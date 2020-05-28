@@ -3,12 +3,15 @@ function GetElement(element) {
   this.selector = document.querySelector(element);
   this.selectorAll = document.querySelectorAll(element);
 }
+
 function CreateElement(element) {
   return (this.element = document.createElement(element));
 }
+
 function AppendElement(parent, children) {
   return parent.append(children);
 }
+
 function RemoveElement(element) {
   return element.remove();
 }
@@ -32,14 +35,17 @@ const showList = (currentData) => {
     new AppendElement(listItem, title);
     new AppendElement(getList, listItem);
   });
-
-  // add focus to the first element in the list
-  setFocusToFirstElement();
 };
-const updateList = (newData) => {
+
+const updateList = (newData, accountsLength) => {
   clearList();
   showList(newData);
+
+  if (accountsLength !== 0) {
+    setFocusToFirstElement();
+  }
 };
+
 const clearList = () => {
   const getListItems = new GetElement(".list > li").selectorAll;
 
@@ -52,6 +58,7 @@ const clearList = () => {
 const setFocus = (element) => {
   return element.focus();
 };
+
 const setFocusToFirstElement = () => {
   const getFirstListItem = new GetElement(".listItem").selector;
   setFocus(getFirstListItem);
@@ -61,25 +68,28 @@ const setFocusToFirstElement = () => {
 const navigationScreenOne = (e) => {
   const getList = new GetElement(".list").selector;
   const newData = { ...data };
-  const focusedItem = document.activeElement;
-  const lengthList = getList.children.length;
+  const focusedAccount = document.activeElement;
+  const accountsLength = data.accounts.length;
   const isFocusOnButton =
-    e.key === "ArrowLeft" && focusedItem.getAttribute("id") === "createButton";
-  console.log("lengthList", lengthList);
+    e.key === "ArrowLeft" &&
+    focusedAccount.getAttribute("id") === "createButton" &&
+    accountsLength !== 0;
 
   const onArrowLeft = () => {
+    const accountToFocus = getList.children[positionListItem];
+
     switch (isFocusOnButton) {
       case true:
-        setFocus(getList.children[positionListItem]);
+        setFocus(accountToFocus);
         break;
       case false:
         newData.accounts.splice(positionListItem, 1);
-        updateList(newData);
+        updateList(newData, newData.accounts.length);
         positionListItem = 0;
-
-        if (lengthList === 2) {
-          setFocus(getCreateButton);
-        }
+        data.accounts.length !== 0
+          ? setFocus(accountToFocus)
+          : setFocus(getCreateButton);
+        break;
       default:
         break;
     }
@@ -91,7 +101,7 @@ const navigationScreenOne = (e) => {
     }
   };
   const onArrowDown = () => {
-    if (positionListItem < lengthList - 1) {
+    if (positionListItem < accountsLength - 1) {
       positionListItem += 1;
       setFocus(getList.children[positionListItem]);
     }
@@ -114,23 +124,24 @@ const navigationScreenOne = (e) => {
       break;
   }
 };
+
 const navigationScreenTwo = (e) => {
   const isInputFocused = document.activeElement === getInput;
-  switch (e.keyCode) {
-    case 37:
+  switch (e.key) {
+    case "ArrowLeft":
       if (isInputFocused) {
         setFocus(getAddButton);
       }
       break;
-    case 38:
+    case "ArrowUp":
       setFocus(getInput);
       break;
-    case 39:
+    case "ArrowRight":
       if (isInputFocused) {
         setFocus(getCancelButton);
       }
       break;
-    case 40:
+    case "ArrowDown":
       setFocus(getAddButton);
       break;
 
@@ -138,6 +149,7 @@ const navigationScreenTwo = (e) => {
       break;
   }
 };
+
 const toggleScreens = () => {
   getScreenOne.classList.toggle("isHidden");
   getScreenTwo.classList.toggle("isVisible");
@@ -145,15 +157,16 @@ const toggleScreens = () => {
 
 // buttons functions
 const onCreateAccount = (e) => {
-  if (e.keyCode === 13) {
+  if (e.key === "Enter") {
     toggleScreens();
     setFocus(getInput);
   }
 };
+
 const onAddAccount = (e) => {
   const inputValue = getInput.value;
   const newData = { ...data };
-  const conditions = inputValue !== "" && e.keyCode === 13;
+  const conditions = inputValue !== "" && e.key === "Enter";
 
   newData.accounts.push({
     title: inputValue,
@@ -168,8 +181,10 @@ const onAddAccount = (e) => {
     updateList(newData);
     toggleScreens();
     getInput.value = "";
+    setFocusToFirstElement();
   }
 };
+
 const onCancelAccount = (e) => {
   toggleScreens();
   getInput.value = "";
@@ -179,6 +194,7 @@ const onCancelAccount = (e) => {
 // basic variables
 const imgUrl =
   "https://images.pexels.com/photos/4344464/pexels-photo-4344464.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260";
+
 const data = {
   accounts: [
     {
@@ -214,3 +230,4 @@ getScreenTwo.addEventListener("keydown", navigationScreenTwo);
 
 // show list of accounts
 showList(data);
+setFocusToFirstElement();

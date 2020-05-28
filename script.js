@@ -127,24 +127,26 @@ const navigationScreenOne = (e) => {
 
 const navigationScreenTwo = (e) => {
   const isInputFocused = document.activeElement === getInput;
+
   switch (e.key) {
     case "ArrowLeft":
-      if (isInputFocused) {
+      if (!isInputFocused) {
         setFocus(getAddButton);
+        whichButton = getAddButton;
       }
       break;
     case "ArrowUp":
       setFocus(getInput);
       break;
     case "ArrowRight":
-      if (isInputFocused) {
+      if (!isInputFocused) {
         setFocus(getCancelButton);
+        whichButton = getCancelButton;
       }
       break;
     case "ArrowDown":
-      setFocus(getAddButton);
+      setFocus(whichButton);
       break;
-
     default:
       break;
   }
@@ -166,18 +168,12 @@ const onCreateAccount = (e) => {
 const onAddAccount = (e) => {
   const inputValue = getInput.value;
   const newData = { ...data };
-  const conditions = inputValue !== "" && e.key === "Enter";
+  if (e.key === "Enter") {
+    newData.accounts.push({
+      title: inputValue,
+      img: imgUrl,
+    });
 
-  newData.accounts.push({
-    title: inputValue,
-    img: imgUrl,
-  });
-
-  if (inputValue === "") {
-    setFocus(getInput);
-  }
-
-  if (conditions) {
     updateList(newData);
     toggleScreens();
     getInput.value = "";
@@ -186,9 +182,11 @@ const onAddAccount = (e) => {
 };
 
 const onCancelAccount = (e) => {
-  toggleScreens();
-  getInput.value = "";
-  setFocusToFirstElement();
+  if (e.key === "Enter") {
+    toggleScreens();
+    setFocusToFirstElement();
+    getInput.value = "";
+  }
 };
 
 // basic variables
@@ -213,13 +211,14 @@ const data = {
 };
 
 //  global variables
-let positionListItem = 0;
 const getInput = new GetElement(".inputText").selector;
 const getScreenOne = new GetElement(".screenOne").selector;
 const getScreenTwo = new GetElement(".screenTwo").selector;
 const getCreateButton = new GetElement("#createButton").selector;
 const getAddButton = new GetElement("#addButton").selector;
 const getCancelButton = new GetElement("#cancelButton").selector;
+let positionListItem = 0;
+let whichButton = getAddButton;
 
 // add listeners
 getCreateButton.addEventListener("keydown", onCreateAccount);
